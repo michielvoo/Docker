@@ -1,17 +1,19 @@
 # syntax=docker/dockerfile:1
 
-ARG PS_VERSION
-FROM --platform=$TARGETPLATFORM mcr.microsoft.com/powershell:${PS_VERSION}-debian-11
+ARG FROM
+ARG PSSCRIPTANALYZER_VERSION
+ARG USE_PSRESOURCEGET
+
+FROM mcr.microsoft.com/powershell:${FROM}
 
 ENV POWERSHELL_TELEMETRY_OPTOUT=1
 ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
 
 SHELL ["pwsh", "-Command"]
 
-RUN \
-Set-PSRepository -InstallationPolicy "Trusted" -Name "PSGallery" \
-&& Install-Module -Confirm:$false -Scope "AllUsers" -Name "Pester" \
-&& Install-Module -Confirm:$false -Scope "AllUsers" -Name "PSScriptAnalyzer"
+RUN if (${USE_PSRESOURCEGET}) { Set-PSResourceRepository -Name "PSGallery" -Trusted } else { Set-PSRepository -InstallationPolicy "Trusted" -Name "PSGallery" }
+RUN Install-Module -Confirm:$false -Scope "AllUsers" -Name "Pester" -RequiredVersion "5.5.0"
+RUN Install-Module -Confirm:$false -Scope "AllUsers" -Name "PSScriptAnalyzer" -RequiredVersion "${PSSCRIPTANALYZER_VERSION}"
 
 RUN \
 apt-get update \

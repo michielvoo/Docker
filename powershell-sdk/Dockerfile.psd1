@@ -5,18 +5,30 @@
     }
     Variants = @(
         @{
-            BuildArgs = @{
-                PS_VERSION = "lts-7.2"
-            }
+            Platforms = @(
+                @{
+                    BuildArgs = @{
+                        FROM = "lts-7.2-debian-11"
+                        PSSCRIPTANALYZER_VERSION = "1.21.0"
+                        USE_PSRESOURCEGET = "`$false"
+                    }
+                    Platform = "linux/amd64"
+                }
+            )
             Version = "7.2"
-            Platforms = @("linux/amd64", "linux/arm64")
         }
         @{
-            BuildArgs = @{
-                PS_VERSION = "7.4"
-            }
+            Platforms = @(
+                @{
+                    BuildArgs = @{
+                        FROM = "7.4-alpine"
+                        PSSCRIPTANALYZER_VERSION = "1.22.0"
+                        USE_PSRESOURCEGET = "`$false"
+                    }
+                    Platform = "linux/amd64"
+                }
+            )
             Version = "7.4"
-            Platforms = @("linux/amd64", "linux/arm64")
         }
     )
 }
