@@ -4,7 +4,6 @@ BeforeDiscovery {
 
 Describe "<Tag> on <Platform>" -ForEach $testCases {
     BeforeAll {
-        Write-Warning ($buildArgs | Out-String)
         $buildArgs = $buildArgs.GetEnumerator() | ForEach-Object { "--build-arg"; "$($_.Name)=$($_.Value)" }
         docker build @buildArgs --file "$Dockerfile" --platform "$Platform" --tag "$Tag" "$Context"
 
