@@ -16,10 +16,6 @@ function Read-DockerMetadata {
         $metadata.Labels = @{}
     }
 
-    if (-not $metadata.Platforms) {
-        throw "No platform(s) specified in metadata"
-    }
-
     return $metadata
 }
 
@@ -139,17 +135,27 @@ function Get-DockerMetadata {
 }
 
 function Get-DockerTestCases {
-    # Gets an array of hashtable objects, one for each target platform
+    # Gets an array of hashtable objects, one for each combination of version and target platform
     param (
         [string] $dockerfileOrName
     )
 
     $metadata = Get-DockerMetadata $dockerfileOrName
 
-    $testCases = $metadata.Platforms | ForEach-Object {@{
-        Metadata = $metadata
-        Platform = $_
-    }}
+    $testCases = @()
+    $metadata.Variants | ForEach-Object {
+        $variant = $_
+        $variant.Platforms | ForEach-Object {
+            $testCases += @{
+                BuildArgs = $_.BuildArgs
+                Context = $metadata.Directory
+                Dockerfile = $metadata.Dockerfile
+                Platform = $_.Platform
+                Tag = "$($metadata.Name):$($variant.Version)"
+                Version = $variant.Version
+            }
+        }
+    }
 
     return $testCases
 }

@@ -2,20 +2,18 @@ BeforeDiscovery {
     Set-Variable "testCases" (Get-DockerTestCases "$PSScriptRoot/Dockerfile")
 }
 
-Describe "<metadata.name> on <platform>" -ForEach $testCases {
+Describe "<Tag> on <Platform>" -ForEach $testCases {
     BeforeAll {
-        $tag = "$($metadata.Name):test"
-    
-        docker build --file "$($metadata.Dockerfile)" --platform "$platform" --tag "$tag" "$($metadata.Directory)"
+        docker build --file "$Dockerfile" --platform "$Platform" --tag "$Tag" "$Context"
     }
 
     AfterAll {
-        docker image rm --force "$tag"
+        docker image rm --force "$Tag"
     }
 
     It "has hugo as its entrypoint" {
         # Act
-        $output = docker run --rm "$tag" version
+        $output = docker run --rm "$Tag" version
 
         # Assert
         $output | Should -Match "hugo v0.120.4\+extended .+"
@@ -23,7 +21,7 @@ Describe "<metadata.name> on <platform>" -ForEach $testCases {
 
     It "has Git" {
         # Act
-        $output = docker run --entrypoint "git" --rm "$tag" --version
+        $output = docker run --entrypoint "git" --rm "$Tag" --version
 
         # Assert
         $output | Should -Match "git version 2\.43\..+"
